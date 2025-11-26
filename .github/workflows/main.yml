@@ -17,8 +17,9 @@ jobs:
         with:
           dotnet-version: "8.0.x" # Hoặc 6.0, 7.0 tùy project bạn tạo
 
-      - name: Publish Code
-      # Dùng **/*.csproj để nó tự đi tìm file dự án trong mọi ngóc ngách
+      - name:
+          Publish Code
+          # Dùng **/*.csproj để nó tự đi tìm file dự án trong mọi ngóc ngách
         run: dotnet publish **/*.csproj -c Release -o ./publish
 
       - name: Upload to Somee
