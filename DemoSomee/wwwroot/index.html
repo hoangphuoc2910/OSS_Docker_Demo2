@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Somee Connection</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .box {
+            border: 2px solid #007bff;
+            padding: 20px;
+            display: inline-block;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <h1>Kiểm tra kết nối Somee</h1>
+        <p>Nhấn nút bên dưới để gọi API Back-end</p>
+        <button onclick="checkConnection()">Lấy giờ Server</button>
+        <div id="result">Chưa gọi API...</div>
+    </div>
+
+    <script>
+        async function checkConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerText = "Đang kết nối...";
+
+            try {
+                // Gọi tới Back-end (API chúng ta vừa viết)
+                const response = await fetch('/api/time');
+
+                if (!response.ok) {
+                    throw new Error('Lỗi mạng hoặc server không phản hồi');
+                }
+
+                const data = await response.json();
+
+                // Hiển thị kết quả
+                resultDiv.innerHTML = `
+                    <br>Lời nhắn: ${data.message} <br>
+                    Giờ Server: ${data.serverTime}
+                `;
+            } catch (error) {
+                resultDiv.style.color = 'red';
+                resultDiv.innerText = "Lỗi: " + error.message;
+            }
+        }
+    </script>
+</body>
+
+</html>
