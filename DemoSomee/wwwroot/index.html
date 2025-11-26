@@ -1,79 +1,206 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Somee Connection</title>
+    <title>Server Status | Demo Somee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
         body {
-            font-family: sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Background màu gradient hiện đại */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             text-align: center;
-            padding-top: 50px;
+            width: 90%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px); /* Hiệu ứng kính mờ */
         }
 
-        .box {
-            border: 2px solid #007bff;
-            padding: 20px;
-            display: inline-block;
-            border-radius: 10px;
+        .card:hover {
+            transform: translateY(-5px);
         }
 
-        button {
-            padding: 10px 20px;
-            background: #007bff;
+        .icon-box {
+            width: 80px;
+            height: 80px;
+            background: #e0e7ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 35px;
+            color: #667eea;
+            transition: all 0.5s ease;
+        }
+
+        h1 { font-size: 24px; margin-bottom: 10px; color: #1a1a1a; }
+        p { color: #666; font-size: 14px; margin-bottom: 30px; }
+
+        .btn {
+            background: linear-gradient(to right, #667eea, #764ba2);
             color: white;
+            padding: 12px 30px;
             border: none;
-            cursor: pointer;
+            border-radius: 50px;
             font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+            transition: all 0.3s ease;
+            width: 100%;
+            outline: none;
         }
 
-        button:hover {
-            background: #0056b3;
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(118, 75, 162, 0.6);
         }
 
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-            color: green;
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
+
+        /* Khu vực hiển thị kết quả */
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            display: none; /* Ẩn đi khi chưa có dữ liệu */
+            animation: fadeIn 0.5s ease;
+        }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-live { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+        .status-error { background-color: #e74c3c; box-shadow: 0 0 10px #e74c3c; }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 8px;
+        }
+        .info-row:last-child { border: none; margin: 0; padding: 0; }
+        .info-label { color: #888; }
+        .info-value { font-weight: 600; color: #333; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Animation xoay tròn khi loading */
+        .fa-spin-fast { animation: fa-spin 1s infinite linear; }
     </style>
 </head>
-
 <body>
-    <div class="box">
-        <h1>Kiểm tra kết nối Somee</h1>
-        <p>Nhấn nút bên dưới để gọi API Back-end</p>
-        <button onclick="checkConnection()">Lấy giờ Server</button>
-        <div id="result">Chưa gọi API...</div>
+
+    <div class="card">
+        <div class="icon-box" id="mainIcon">
+            <i class="fas fa-server"></i>
+        </div>
+        
+        <h1>Kết nối Server</h1>
+        <p>Kiểm tra trạng thái hệ thống trên Somee</p>
+
+        <button class="btn" onclick="checkConnection()" id="btnCheck">
+            <i class="fas fa-bolt"></i> Kiểm tra ngay
+        </button>
+
+        <div class="result-box" id="resultArea">
+            <div class="info-row">
+                <span class="info-label">Trạng thái:</span>
+                <span class="info-value"><span class="status-dot status-live"></span> Online</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Giờ Server:</span>
+                <span class="info-value" id="serverTime">--:--:--</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tin nhắn:</span>
+                <span class="info-value" id="serverMsg">...</span>
+            </div>
+        </div>
     </div>
 
     <script>
         async function checkConnection() {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerText = "Đang kết nối...";
+            const btn = document.getElementById('btnCheck');
+            const iconBox = document.getElementById('mainIcon');
+            const icon = iconBox.querySelector('i');
+            const resultArea = document.getElementById('resultArea');
+            
+            // 1. Hiệu ứng Loading
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Đang kết nối...';
+            icon.className = 'fas fa-sync fa-spin-fast'; // Icon xoay
+            iconBox.style.color = '#bbb';
+            iconBox.style.background = '#f0f0f0';
+            resultArea.style.display = 'none';
 
             try {
-                // Gọi tới Back-end (API chúng ta vừa viết)
+                // 2. Gọi API (Delay giả 0.5s để nhìn thấy hiệu ứng loading cho đẹp)
+                const start = Date.now();
                 const response = await fetch('/api/time');
+                
+                // Đảm bảo loading chạy ít nhất 800ms cho mượt
+                const duration = Date.now() - start;
+                if(duration < 800) await new Promise(r => setTimeout(r, 800 - duration));
 
-                if (!response.ok) {
-                    throw new Error('Lỗi mạng hoặc server không phản hồi');
-                }
-
+                if (!response.ok) throw new Error('Không thể kết nối');
                 const data = await response.json();
 
-                // Hiển thị kết quả
-                resultDiv.innerHTML = `
-                    <br>Lời nhắn: ${data.message} <br>
-                    Giờ Server: ${data.serverTime}
-                `;
+                // 3. Xử lý thành công (Giao diện xanh lá)
+                document.getElementById('serverTime').innerText = data.serverTime;
+                document.getElementById('serverMsg').innerText = data.message;
+                
+                icon.className = 'fas fa-check-circle';
+                iconBox.style.color = '#2ecc71'; // Màu xanh
+                iconBox.style.background = '#dbfdf0';
+                
+                resultArea.style.display = 'block';
+
             } catch (error) {
-                resultDiv.style.color = 'red';
-                resultDiv.innerText = "Lỗi: " + error.message;
+                // 4. Xử lý lỗi (Giao diện đỏ)
+                icon.className = 'fas fa-exclamation-triangle';
+                iconBox.style.color = '#e74c3c'; // Màu đỏ
+                iconBox.style.background = '#fadbd8';
+                alert("Lỗi: " + error.message);
+            } finally {
+                // 5. Reset nút bấm
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo"></i> Thử lại';
             }
         }
     </script>
 </body>
-
 </html>
