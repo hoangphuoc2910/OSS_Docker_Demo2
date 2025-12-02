@@ -1,13 +1,17 @@
-name: Deploy .NET Fullstack
+name: Deploy Backend (Somee)
 
 on:
   push:
     branches: ["main"]
+    paths:
+      - "**/*.cs" # Chỉ chạy khi có file .cs thay đổi
+      - "**/*.csproj" # Hoặc file cấu hình dự án thay đổi
+      - "appsettings.json"
+      - ".github/workflows/be.yml"
 
 jobs:
-  build-and-deploy:
+  deploy-backend:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -17,10 +21,13 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      # Đã sửa lại indentation cho đẹp và chuẩn
+      # Build code C#
       - name: Publish Code
         run: dotnet publish **/*.csproj -c Release -o ./publish
 
+      # (Tùy chọn) Upload file app_offline.htm nếu cần khóa server
+
+      # Upload lên Somee
       - name: Upload to Somee
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
