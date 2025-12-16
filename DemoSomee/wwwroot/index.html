@@ -4,63 +4,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đánh giá hệ thống | Project 1</title>
+    <title>Hệ thống Kiểm tra & Đánh giá | OSS</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6c5ce7;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --danger: #e74c3c;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
             margin: 0;
         }
 
         .card {
             background: white;
-            padding: 40px;
+            padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            width: 380px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 420px;
             text-align: center;
         }
 
         h2 {
-            color: #333;
-            margin-bottom: 20px;
+            color: #2d3436;
+            margin: 10px 0;
         }
 
-        /* Input Styles */
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        label {
-            font-size: 14px;
-            color: #666;
-            font-weight: 600;
-        }
-
-        input[type="text"],
-        input[type="date"] {
+        input {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
+            padding: 12px;
+            margin: 8px 0;
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 10px;
             box-sizing: border-box;
-            /* Quan trọng để không bị vỡ layout */
+            outline: none;
         }
 
-        /* Star Rating CSS */
+        /* Progress Bar */
+        .progress-area {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .progress-bg {
+            width: 100%;
+            background: #eee;
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.4s;
+        }
+
+        #statusLabel {
+            font-size: 13px;
+            color: #636e72;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        /* Badge */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .excellent {
+            background: #dff9fb;
+            color: var(--success);
+        }
+
+        .good {
+            background: #fef9e7;
+            color: var(--warning);
+        }
+
+        .slow {
+            background: #fdedec;
+            color: var(--danger);
+        }
+
+        /* Result & Rating */
+        #serverResult,
+        #ratingSection,
+        #finalCard {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+
         .rating {
             display: flex;
             flex-direction: row-reverse;
-            /* Đảo ngược để CSS hover hoạt động đúng */
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .rating input {
@@ -69,49 +130,53 @@
 
         .rating label {
             cursor: pointer;
-            width: 40px;
-            font-size: 30px;
+            font-size: 35px;
             color: #ddd;
-            transition: color 0.2s;
+            transition: 0.2s;
         }
 
         .rating label:before {
             content: '★';
         }
 
-        /* Hiệu ứng khi chọn hoặc hover sao */
         .rating input:checked~label,
         .rating label:hover,
         .rating label:hover~label {
-            color: #f1c40f;
-            /* Màu vàng */
+            color: var(--warning);
         }
 
         .btn {
-            background: #6c5ce7;
-            color: white;
-            padding: 12px 30px;
+            width: 100%;
+            padding: 12px;
             border: none;
             border-radius: 50px;
             font-size: 16px;
             cursor: pointer;
-            width: 100%;
-            transition: transform 0.2s;
+            transition: 0.3s;
+            font-weight: bold;
+            margin-top: 10px;
         }
 
-        .btn:hover {
-            transform: translateY(-3px);
-            background: #5b4cc4;
+        .btn-check {
+            background: var(--primary);
+            color: white;
         }
 
-        #result {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e0ffe4;
-            color: #27ae60;
-            border-radius: 10px;
-            display: none;
-            font-size: 14px;
+        .btn-rate {
+            background: var(--success);
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -119,86 +184,120 @@
 <body>
 
     <div class="card">
-        <i class="fas fa-clipboard-check" style="font-size: 50px; color: #6c5ce7; margin-bottom: 10px;"></i>
-        <h2>Kiểm tra & Đánh giá</h2>
-
-        <div class="form-group">
-            <label>Họ và tên:</label>
-            <input type="text" id="txtName" placeholder="Ví dụ: Nguyễn Văn A">
+        <div id="step1">
+            <i class="fas fa-server" style="font-size: 40px; color: var(--primary);"></i>
+            <h2>Bước 1: Kiểm tra</h2>
+            <input type="text" id="userName" placeholder="Nhập tên của bạn...">
+            <input type="date" id="userDob">
+            <button class="btn btn-check" onclick="startCheck()" id="btnCheck">Kiểm tra kết nối</button>
         </div>
 
-        <div class="form-group">
-            <label>Ngày sinh:</label>
-            <input type="date" id="txtDob">
+        <div class="progress-area" id="progArea">
+            <div id="statusLabel">Khởi tạo...</div>
+            <div class="progress-bg">
+                <div class="progress-fill" id="progFill"></div>
+            </div>
         </div>
 
-        <label>Chất lượng hệ thống:</label>
-        <div class="rating">
-            <input type="radio" name="star" id="star5" value="5"><label for="star5"></label>
-            <input type="radio" name="star" id="star4" value="4"><label for="star4"></label>
-            <input type="radio" name="star" id="star3" value="3"><label for="star3"></label>
-            <input type="radio" name="star" id="star2" value="2"><label for="star2"></label>
-            <input type="radio" name="star" id="star1" value="1"><label for="star1"></label>
+        <div id="serverResult" class="info-box">
+            <div id="resTime">🕒 Giờ: --</div>
+            <div id="resCount">🔢 Tổng lượt: --</div>
+            <div id="resLatency">⚡ Phản hồi: -- <span id="resBadge"></span></div>
         </div>
 
-        <button class="btn" onclick="submitData()">Gửi đánh giá</button>
+        <div id="ratingSection">
+            <hr style="border: 0; border-top: 1px dashed #ddd; margin: 20px 0;">
+            <h2>Bước 2: Đánh giá</h2>
+            <div class="rating">
+                <input type="radio" name="star" id="s5" value="5"><label for="s5"></label>
+                <input type="radio" name="star" id="s4" value="4"><label for="s4"></label>
+                <input type="radio" name="star" id="s3" value="3"><label for="s3"></label>
+                <input type="radio" name="star" id="s2" value="2"><label for="s2"></label>
+                <input type="radio" name="star" id="s1" value="1"><label for="s1"></label>
+            </div>
+            <button class="btn btn-rate" onclick="submitRating()">Gửi đánh giá</button>
+        </div>
 
-        <div id="result">...</div>
+        <div id="finalCard" style="background: #e8f8f5; padding: 20px; border-radius: 15px;">
+            <i class="fas fa-check-circle" style="font-size: 50px; color: var(--success);"></i>
+            <h3 style="color: var(--success);">Thành công!</h3>
+            <p>Cảm ơn <strong id="fName"></strong> đã chấm <span id="fStar" style="color:var(--warning)"></span> sao.
+            </p>
+            <button onclick="location.reload()" class="btn" style="background:white; border:1px solid #ddd;">Làm
+                mới</button>
+        </div>
     </div>
 
     <script>
-        // LINK API CỦA BẠN
-        const API_URL = 'http://dh52201267oss.somee.com/api/time';
+        const API = 'http://dh52201267oss.somee.com/api/time';
 
-        async function submitData() {
-            const name = document.getElementById('txtName').value;
-            const dob = document.getElementById('txtDob').value;
-
-            // Lấy số sao đã chọn
-            const stars = document.querySelector('input[name="star"]:checked');
-            const rating = stars ? parseInt(stars.value) : 0;
-
+        async function startCheck() {
+            const name = document.getElementById('userName').value;
             if (!name) return alert("Vui lòng nhập tên!");
-            if (rating === 0) return alert("Vui lòng chấm điểm sao!");
 
-            const btn = document.querySelector('.btn');
-            const resultBox = document.getElementById('result');
+            document.getElementById('btnCheck').style.display = 'none';
+            document.getElementById('progArea').style.display = 'block';
 
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
-            btn.disabled = true;
+            const steps = [
+                { p: 30, t: "Đang quét địa chỉ IP..." },
+                { p: 60, t: "Đang kết nối Somee Server..." },
+                { p: 90, t: "Đang truy vấn Database..." }
+            ];
+
+            for (let s of steps) {
+                document.getElementById('statusLabel').innerText = s.t;
+                document.getElementById('progFill').style.width = s.p + "%";
+                await new Promise(r => setTimeout(r, 700));
+            }
 
             try {
-                // Gửi POST request
-                const response = await fetch(API_URL, {
-                    method: 'POST', // Chuyển từ GET sang POST
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                const start = performance.now();
+                const res = await fetch(API);
+                const data = await res.json();
+                const ms = Math.round(performance.now() - start);
+
+                document.getElementById('progFill').style.width = "100%";
+                document.getElementById('statusLabel').innerText = "Hoàn tất!";
+
+                document.getElementById('resTime').innerText = "🕒 Giờ: " + data.serverTime;
+                document.getElementById('resCount').innerText = "🔢 Tổng lượt: " + data.totalChecks;
+                document.getElementById('resLatency').innerText = "⚡ Phản hồi: " + ms + " ms";
+
+                const b = document.getElementById('resBadge');
+                if (ms < 200) { b.innerText = "TUYỆT VỜI"; b.className = "badge excellent"; }
+                else if (ms < 800) { b.innerText = "ỔN ĐỊNH"; b.className = "badge good"; }
+                else { b.innerText = "CHẬM"; b.className = "badge slow"; }
+
+                document.getElementById('progArea').style.display = 'none';
+                document.getElementById('serverResult').style.display = 'block';
+                document.getElementById('ratingSection').style.display = 'block';
+            } catch (e) { alert("Lỗi kết nối!"); location.reload(); }
+        }
+
+        async function submitRating() {
+            const star = document.querySelector('input[name="star"]:checked');
+            if (!star) return alert("Vui lòng chọn số sao!");
+
+            try {
+                const res = await fetch(API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        name: name,
-                        dob: dob ? dob : null,
-                        rating: rating
+                        name: document.getElementById('userName').value,
+                        dob: document.getElementById('userDob').value || null,
+                        rating: parseInt(star.value)
                     })
                 });
-
-                if (!response.ok) throw new Error('Lỗi kết nối');
-
-                const data = await response.json();
-
-                // Hiển thị kết quả
-                resultBox.style.display = 'block';
-                resultBox.innerHTML = `
-                    <strong>${data.message}</strong><br>
-                    🕒 Giờ Server: ${data.serverTime}<br>
-                    🔢 Tổng lượt đánh giá: ${data.totalChecks}
-                `;
-
-            } catch (error) {
-                alert("Lỗi: " + error.message);
-            } finally {
-                btn.innerHTML = 'Gửi đánh giá';
-                btn.disabled = false;
-            }
+                const result = await res.json();
+                if (result.success) {
+                    document.getElementById('serverResult').style.display = 'none';
+                    document.getElementById('ratingSection').style.display = 'none';
+                    document.getElementById('step1').style.display = 'none';
+                    document.getElementById('finalCard').style.display = 'block';
+                    document.getElementById('fName').innerText = result.data.name;
+                    document.getElementById('fStar').innerText = result.data.rating;
+                }
+            } catch (e) { alert("Lỗi khi gửi!"); }
         }
     </script>
 </body>
