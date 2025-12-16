@@ -4,45 +4,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Sản Phẩm (Cross-Domain)</title>
+    <title>Quản Lý Sản Phẩm (InfinityFree)</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="text-center text-primary mb-3">🛒 Frontend Somee - Backend InfinityFree</h2>
+    <div class="container mt-5" style="max-width: 800px;">
+        <h2 class="text-center text-primary mb-3">🚀 Hệ Thống Quản Lý Sản Phẩm</h2>
 
         <div class="card p-4 mb-4 shadow-sm">
             <input type="hidden" id="pId">
             <div class="row g-2">
-                <div class="col-md-4"><input id="pName" class="form-control" placeholder="Tên SP"></div>
-                <div class="col-md-3"><input id="pPrice" type="number" class="form-control" placeholder="Giá"></div>
-                <div class="col-md-3"><input id="pDesc" class="form-control" placeholder="Mô tả"></div>
-                <div class="col-md-2 d-flex gap-1">
-                    <button onclick="save()" id="btnSave" class="btn btn-success w-100"><i class="fas fa-plus"></i>
-                        Thêm</button>
-                    <button onclick="resetForm()" id="btnCancel" class="btn btn-secondary" style="display:none;"><i
-                            class="fas fa-times"></i></button>
+                <div class="col-md-4">
+                    <label class="small text-muted">Tên sản phẩm</label>
+                    <input id="pName" class="form-control" placeholder="VD: iPhone 15">
+                </div>
+                <div class="col-md-3">
+                    <label class="small text-muted">Giá bán</label>
+                    <input id="pPrice" type="number" class="form-control" placeholder="0">
+                </div>
+                <div class="col-md-3">
+                    <label class="small text-muted">Mô tả</label>
+                    <input id="pDesc" class="form-control" placeholder="Màu sắc...">
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-1">
+                    <button onclick="save()" id="btnSave" class="btn btn-success w-100 fw-bold">
+                        <i class="fas fa-plus"></i> Thêm
+                    </button>
+                    <button onclick="resetForm()" id="btnCancel" class="btn btn-secondary" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
         </div>
 
         <div class="card shadow-sm">
-            <div class="card-body">
-                <table class="table table-hover">
-                    <tbody id="list"></tbody>
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Giá</th>
+                            <th>Mô tả</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list">
+                    </tbody>
                 </table>
+                <div id="loading" class="text-center p-3 text-muted">Đang tải dữ liệu...</div>
             </div>
         </div>
     </div>
 
     <script>
-        // ⚠️ QUAN TRỌNG: Thay bằng link InfinityFree của bạn (dùng HTTP thường)
+        // --- QUAN TRỌNG: Đường dẫn API tương đối ---
+        // Khi chạy trên InfinityFree, nó sẽ tự hiểu là tìm file api.php cùng thư mục
         const API = 'api.php';
 
         let products = [];
 
+        // 1. Tải danh sách
         async function load() {
             try {
                 const res = await fetch(API);
@@ -51,48 +75,63 @@
                 try {
                     products = JSON.parse(text); // Ép kiểu JSON
                     render(products);
+                    document.getElementById('loading').style.display = 'none';
                 } catch (e) {
                     console.error("Lỗi dữ liệu:", text);
-                    alert("Không đọc được dữ liệu từ InfinityFree! (Xem Console)");
+                    document.getElementById('loading').innerHTML = '<span class="text-danger">Lỗi kết nối Server!</span>';
                 }
-            } catch (e) { console.error("Lỗi kết nối:", e); }
+            } catch (e) { console.error("Lỗi mạng:", e); }
         }
 
+        // 2. Hiển thị lên bảng
         function render(data) {
+            if (data.length === 0) {
+                document.getElementById('list').innerHTML = '<tr><td colspan="5" class="text-center p-3">Chưa có sản phẩm nào</td></tr>';
+                return;
+            }
             document.getElementById('list').innerHTML = data.map(p => `
                 <tr>
                     <td>${p.id}</td>
-                    <td><strong>${p.name}</strong></td>
-                    <td class="text-danger">${p.price}</td>
-                    <td>${p.description}</td>
-                    <td>
-                        <button onclick="edit(${p.id})" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                        <button onclick="del(${p.id})" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    <td class="fw-bold text-primary">${p.name}</td>
+                    <td class="text-danger fw-bold">${parseInt(p.price).toLocaleString()} đ</td>
+                    <td class="text-muted small">${p.description}</td>
+                    <td class="text-center">
+                        <button onclick="edit(${p.id})" class="btn btn-sm btn-warning text-white"><i class="fas fa-edit"></i></button>
+                        <button onclick="del(${p.id})" class="btn btn-sm btn-danger ms-1"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`).join('');
         }
 
+        // 3. Lưu (Thêm mới hoặc Cập nhật)
         async function save() {
             const id = document.getElementById('pId').value;
-            const data = {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+
+            if (!name || !price) return alert("Vui lòng nhập tên và giá!");
+
+            const payload = {
                 id: id,
-                name: document.getElementById('pName').value,
-                price: document.getElementById('pPrice').value,
+                name: name,
+                price: price,
                 description: document.getElementById('pDesc').value
             };
 
-            // Nếu có ID -> PUT (Sửa), Không ID -> POST (Thêm)
             const method = id ? 'PUT' : 'POST';
+
+            document.getElementById('btnSave').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
 
             await fetch(API, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(payload)
             });
+
             resetForm();
             load();
         }
 
+        // 4. Chế độ Sửa
         function edit(id) {
             const p = products.find(x => x.id == id);
             if (p) {
@@ -100,29 +139,36 @@
                 document.getElementById('pName').value = p.name;
                 document.getElementById('pPrice').value = p.price;
                 document.getElementById('pDesc').value = p.description;
-                document.getElementById('btnSave').className = 'btn btn-warning w-100';
-                document.getElementById('btnSave').innerHTML = '<i class="fas fa-save"></i> Lưu';
+
+                const btn = document.getElementById('btnSave');
+                btn.className = 'btn btn-warning w-100 text-white fw-bold';
+                btn.innerHTML = '<i class="fas fa-save"></i> Lưu lại';
                 document.getElementById('btnCancel').style.display = 'block';
             }
         }
 
+        // 5. Reset Form
         function resetForm() {
             document.getElementById('pId').value = '';
             document.getElementById('pName').value = '';
             document.getElementById('pPrice').value = '';
             document.getElementById('pDesc').value = '';
-            document.getElementById('btnSave').className = 'btn btn-success w-100';
-            document.getElementById('btnSave').innerHTML = '<i class="fas fa-plus"></i> Thêm';
+
+            const btn = document.getElementById('btnSave');
+            btn.className = 'btn btn-success w-100 fw-bold';
+            btn.innerHTML = '<i class="fas fa-plus"></i> Thêm';
             document.getElementById('btnCancel').style.display = 'none';
         }
 
+        // 6. Xóa
         async function del(id) {
-            if (confirm('Xóa nhé?')) {
+            if (confirm('Bạn có chắc chắn muốn xóa không?')) {
                 await fetch(`${API}?id=${id}`, { method: 'DELETE' });
                 load();
             }
         }
 
+        // Chạy khi mở trang
         load();
     </script>
 </body>
