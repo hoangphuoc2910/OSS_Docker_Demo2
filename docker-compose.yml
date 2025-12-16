@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  # Service PHP Web App
+  php-app:
+    build: .
+    ports:
+      - "8080:80" # Truy cập web bằng localhost:8080
+    depends_on:
+      - mysql-db
+
+  # Service Database MySQL
+  mysql-db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword # Mật khẩu root
+      MYSQL_DATABASE: demosomee_db # Tên database sẽ tự tạo
+    ports:
+      - "3308:3306" # Cổng truy cập MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
