@@ -1,0 +1,30 @@
+name: Deploy Backend to InfinityFree
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    name: Deploy PHP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest code
+        uses: actions/checkout@v4
+
+      - name: Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.IF_HOST }}
+          username: ${{ secrets.IF_USER }}
+          password: ${{ secrets.IF_PASS }}
+
+          # QUAN TRỌNG: Phải upload vào thư mục htdocs
+          server-dir: htdocs/
+
+          # Nếu code PHP của bạn nằm trong thư mục con (ví dụ 'Backend') thì mở dòng này:
+          # local-dir: ./Backend/
+
+          # An toàn: Không xóa các file hệ thống khác của InfinityFree
+          dangerous-clean-slate: false

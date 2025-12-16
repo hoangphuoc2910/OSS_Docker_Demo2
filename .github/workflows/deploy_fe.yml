@@ -1,0 +1,33 @@
+name: Deploy Frontend to Somee
+
+on:
+  push:
+    branches:
+      - main # Hoặc 'master' tùy tên nhánh chính của bạn
+
+jobs:
+  web-deploy:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest code
+        uses: actions/checkout@v4
+
+      - name: Sync files to Somee
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+
+          # QUAN TRỌNG: Đường dẫn trên Server Somee
+          # Bạn phải thay đúng tên thư mục gốc của web bạn
+          server-dir: /www.dh52201267oss.somee.com/
+
+          # QUAN TRỌNG: File cần upload
+          # Nếu file index.html nằm ngay ngoài cùng repo thì bỏ dòng local-dir
+          # Nếu file index.html nằm trong thư mục ví dụ 'Frontend' thì bỏ comment dòng dưới:
+          # local-dir: ./Frontend/
+
+          # Tùy chọn: Xóa file cũ trước khi up (Nên để true để sạch rác)
+          dangerous-clean-slate: true
